@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.13](https://github.com/kunchenguid/axi/compare/axi-sdk-js-v0.1.12...axi-sdk-js-v0.1.13) (2026-10-02)
+
+
+### Bug Fixes
+
+* **axi-sdk-js:** make generated OpenCode plugin load on OpenCode 2 ([#225](https://github.com/kunchenguid/axi/issues/225)) ([ff42516](https://github.com/kunchenguid/axi/commit/ff4251638be344239e96df2ef42c97e97526de10))
+
 ## [0.1.12](https://github.com/kunchenguid/axi/compare/axi-sdk-js-v0.1.11...axi-sdk-js-v0.1.12) (2026-09-16)
 
 
