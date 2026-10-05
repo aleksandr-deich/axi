@@ -1297,3 +1297,47 @@ community:
         - "src/hass_axi/commands/home.py is the no-argument live view (entity counts by domain, unavailable count, next-step help). src/hass_axi/hooks.py installs a SessionStart hook for Claude Code and Codex and a managed OpenCode plugin only when `hass-axi setup hooks` runs (src/hass_axi/commands/setup.py); the hook runs `hass-axi context`, which src/hass_axi/commands/context.py writes to need no connection or credential and to exit 0. The skill is produced by `hass-axi setup skill`, which generates skills/hass-axi/SKILL.md from the command table and has a `--check` mode for staleness; the committed copy is current at the pin."
         - "Gaps observed at the pin: src/hass_axi/commands/sensor.py defaults list rows to six fields and src/hass_axi/commands/logbook.py to five. src/hass_axi/commands/api.py and src/hass_axi/commands/wscmd.py print the whole response with no size truncation. `service call`, write-method `api` requests, and write `ws` commands are sent without a confirmation or preview flag; the capability pre-check and HASS_AXI_READ_ONLY are the only gates. `setup hooks` has no status or removal subcommand and installs no session-end hook. The bare home view prints the description and setup help but exits 1 when HA_URL/HA_TOKEN are unset or Home Assistant is unreachable."
       exception: "Principle 2 is partial: `sensor list` defaults to six fields and `logbook get` to five. Principle 3 is partial: `api` and `ws` output is not size-truncated. Principle 6 is partial: `service call` and the raw `api`/`ws` write paths mutate without a confirmation or preview step, relying on the capability pre-check and the opt-in `HASS_AXI_READ_ONLY` switch. Principle 7 lacks hook status/removal and session-end capture. Principle 8 home view exits 1 without configuration or a reachable server. Observations apply to the pinned wrapper source, not independently verified Home Assistant behavior."
+  - name: plex-axi
+    url: https://github.com/dmealing/plex-axi
+    author: dmealing
+    domain: Plex
+    description: "Structured per-field search and diagnosis across a Plex music library, ending at a `plex://` identifier - ratings and audio playlist edits need `PLEX_AXI_ALLOW_WRITES=true` plus `--write` (otherwise they preview), and playback commands stay hidden unless `PLEX_AXI_ALLOW_PLAYBACK=true`, with `play` only previewing until `--now`."
+    admission:
+      status: admitted
+      reviewed_revision: f31149dfdc4e8424f43aa5e17c1252ff7c873a88
+      reviewed_components:
+        - pyproject.toml
+        - src/plex_axi/__init__.py
+        - src/plex_axi/cli.py
+        - src/plex_axi/argspec.py
+        - src/plex_axi/errors.py
+        - src/plex_axi/output.py
+        - src/plex_axi/toon.py
+        - src/plex_axi/config.py
+        - src/plex_axi/playback.py
+        - src/plex_axi/writes.py
+        - src/plex_axi/hooks.py
+        - src/plex_axi/sessionlog.py
+        - src/plex_axi/music.py
+        - src/plex_axi/toolkit/shapes.py
+        - src/plex_axi/commands/_common.py
+        - src/plex_axi/commands/home.py
+        - src/plex_axi/commands/search.py
+        - src/plex_axi/commands/api.py
+        - src/plex_axi/commands/rate.py
+        - src/plex_axi/commands/playlist.py
+        - src/plex_axi/commands/play.py
+        - src/plex_axi/commands/recent.py
+        - src/plex_axi/commands/item.py
+        - src/plex_axi/commands/setup.py
+        - src/plex_axi/commands/context.py
+        - src/plex_axi/commands/skill.py
+        - skills/plex-axi/SKILL.md
+      source_observations:
+        - "Tag v0.8.0 is f31149dfdc4e8424f43aa5e17c1252ff7c873a88. pyproject.toml declares the `plex-axi` console script (plex_axi.cli:main) with dependencies PlexAPI>=4.18 and axi-toolkit>=0.4.0, and src/plex_axi/__init__.py carries version 0.8.0. An earlier revision, v0.6.0 (339fb0913867e298d9890f6a3b31f41dc52ff5ff), was independently reviewed and approved in kunchenguid/axi#169."
+        - "src/plex_axi/cli.py is the single error boundary: an AXI error renders as a structured document on stdout with the error's exit code, and any other exception renders as INTERNAL_ERROR with recovery lines instead of a raw traceback. src/plex_axi/errors.py maps UsageError to the usage exit code and every other failure to the error exit code. src/plex_axi/argspec.py refuses an unknown flag by name (UNKNOWN_FLAG), with the replacement where one exists. `-v`, `-V`, and `--version` print the bare version in every output mode."
+        - "src/plex_axi/toon.py is an in-tree TOON encoder and src/plex_axi/output.py is the one output boundary: TOON by default with `--json` and `--human` modes, registered secrets redacted, and `truncate` appending the original length. src/plex_axi/config.py takes the server URL and token from the environment and registers the token as a secret. src/plex_axi/music.py ROW_FIELDS defaults list rows to four fields for tracks and albums (key, media_id, title, artist) and three for artists, with `--fields` selecting from the wider set; `media_id` is the `plex://` identifier. src/plex_axi/commands/search.py exposes per-field search, reports shown versus total counts, suggests a larger `--limit` when results are cut short, and treats an empty result as exit 0 with next steps. src/plex_axi/commands/item.py previews long summaries with a `--full` hint."
+        - "src/plex_axi/writes.py gates `rate` (src/plex_axi/commands/rate.py) and the playlist edits (src/plex_axi/commands/playlist.py) behind PLEX_AXI_ALLOW_WRITES=true, checked before any connection; without `--write` they preview and send nothing. Repeated writes converge: `rate` to the value already held, `playlist add` of items already held, `playlist create` of an existing playlist that holds every requested item, and `playlist remove` of items already absent each answer as a no-op with exit 0, and `add` sends only the items not yet held. `playlist create` still refuses with PLAYLIST_EXISTS (exit 1) when a playlist of that title exists with different contents. src/plex_axi/playback.py keeps the `clients` and `play` commands out of the command table, help, home view, context, and skill unless PLEX_AXI_ALLOW_PLAYBACK=true, and src/plex_axi/commands/play.py returns a preview with the exact rerun command until `--now` is passed."
+        - "src/plex_axi/commands/api.py issues GET only and refuses other methods by name. Before connecting it also refuses, with STATE_CHANGING_PATH (exit 2), a path whose GET changes server state: src/plex_axi/toolkit/shapes.py acts_on_get matches the `/:/`, `/player/`, `/playqueues`, `/butler`, `/updater`, and `/actions/` prefixes and endings such as `/refresh`, `/analyze`, `/emptyTrash`, `/optimize`, `/match`, `/unmatch`, and `/scrobble`, after percent-decoding, slash-collapsing, and lower-casing the path; `.` and `..` segments are refused. A token passed as a query parameter is refused, and any response attribute whose name marks a credential (is_credential_name: token, secret, password, authkey, apikey, credential) prints as `<redacted>` and is registered as a secret, which covers the account token in `/myplex/account`. Output is bounded by size as well as depth: `--depth` defaults to 3, at most 20 children of one tag render with the rest counted, and values over 800 characters are previewed with their full length; `--full` and `--depth` lift the bounds and are suggested only when a bound was hit."
+        - "src/plex_axi/commands/home.py is the no-argument live view of the music library; when PLEX_URL/PLEX_TOKEN are unset or the server is not reached it still prints the description, the write-gate state, and the next setup step, and exits 0. src/plex_axi/commands/recent.py carries the caller's `--type` and `--fields` into its `--limit` follow-up suggestion."
+        - "src/plex_axi/hooks.py installs session hooks for Claude Code, Codex, and OpenCode only when `plex-axi setup hooks` runs (src/plex_axi/commands/setup.py); `setup status` reports each target without writing and `setup remove` takes out only the entries the installer marked as its own. The session-start hook runs `plex-axi context`, which src/plex_axi/commands/context.py writes to need no connection or credential and to exit 0. Claude Code also gets a SessionEnd hook, `plex-axi context end`, which src/plex_axi/sessionlog.py uses to record command names and counts (never arguments) for the next session's context; Codex and OpenCode get the session-start context only; the installer registers no session-end hook for them. The skill is produced by `plex-axi skill` (src/plex_axi/commands/skill.py), which generates skills/plex-axi/SKILL.md from the command table and has a `--check` mode for staleness. Observations apply to the pinned wrapper source, not independently verified Plex server or PlexAPI behavior."
