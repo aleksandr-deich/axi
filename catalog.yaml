@@ -30,7 +30,7 @@ community:
     url: https://github.com/aleksandr-deich/adb-axi
     author: aleksandr-deich
     domain: Android app development
-    description: "Manage Android app lifecycle, check process-death behavior, inspect logs and crashes, and read app databases through an agent-friendly adb CLI."
+    description: "Manage Android app lifecycle, check process-death behavior, inspect logs and crashes, and perform read-only app database inspection through an agent-friendly adb CLI."
   - name: jj-axi
     url: https://github.com/aivv73/jj-axi
     author: aivv73
